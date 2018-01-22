@@ -1,0 +1,622 @@
+<section class="container-fluid cui-page__content">
+
+    <div class="row d-lg-flex">
+        <div class="col-xs-12 col-lg-9">
+
+            <oui-back-button data-title="{{ 'cpcivm_add_title' | translate }}"></oui-back-button>
+            <cui-wizard-form data-form-on-init="$ctrl.initProject()"
+                             data-form-on-cancel="$ctrl.cancel()"
+                             data-form-on-complete="$ctrl.confirm()"
+                             data-form-completed-text="{{ 'cpcivm_add_button_completed_text' | translate }}"
+                             data-form-submitted="$ctrl.loaders.adding">
+
+                <!-- Step 1 : OS or SnapShot -->
+                <cui-wizard-step data-step-title="{{ 'cpcivm_add_step1_title' | translate }}"
+                                 data-step-on-init="!$ctrl.isLoaded && $ctrl.initOsList()"
+                                 data-step-loaded="!$ctrl.loaders.step1"
+                                 data-step-completed="$ctrl.isStep1Valid()">
+
+                    <div data-ng-if="!$ctrl.model.imageType && !$ctrl.model.snapshotId">
+                        <uib-tabset>
+                            <uib-tab index="$index" heading="{{ 'cpcivm_add_step1_tab_os_' + imageType | translate }}"
+                                     data-ng-repeat="(imageType, distributions) in $ctrl.displayedImages track by imageType">
+                                <div class="cloud-vm-add-list d-md-flex flex-wrap mt-4">
+                                    <div class="cloud-vm-add-list-item cloud-vm-add-grid-cell"
+                                         data-ng-repeat="(distribution, images) in distributions track by $index">
+                                        <oui-select-picker data-id="imageType_{{images[0].nameGeneric}}"
+                                                           data-match="name"
+                                                           data-model="$ctrl.model.imageType"
+                                                           data-name="imageType"
+                                                           data-placeholder="{{ 'cpcivm_add_step1_distribution_choose' | translate }}"
+                                                           data-picture="assets/images/cloud/os/{{ distribution }}_50.png"
+                                                           data-text="{{:: 'cpcivm_add_distribution_' + distribution | translate }}{{ imageType === 'windows' ? ' *' : '' }}"
+                                                           data-values="images">
+                                        </oui-select-picker>
+                                    </div>
+                                </div>
+                                <p class="mt-4"
+                                   data-ng-if="imageType === 'windows'">
+                                    <sup aria-hidden="true">*</sup>
+                                    <span data-translate="cpcivm_add_step1_windows_message"></span>
+                                </p>
+                            </uib-tab>
+                            <uib-tab index="2" heading="{{ 'cpcivm_add_step1_tab_apps' | translate }}"
+                                     data-ng-if="$ctrl.displayedApps.length > 0">
+                                <div class="cloud-vm-add-list d-md-flex flex-wrap mt-4">
+                                    <div class="cloud-vm-add-list-item cloud-vm-add-grid-cell"
+                                         data-ng-repeat="app in $ctrl.displayedApps track by app.nameGeneric">
+                                        <oui-select-picker data-id="imageType_{{app.nameGeneric}}"
+                                                           data-match="name"
+                                                           data-model="$ctrl.model.imageType"
+                                                           data-name="imageType"
+                                                           data-placeholder="{{ 'cpcivm_add_step1_distribution_choose' | translate }}"
+                                                           data-picture="assets/images/cloud/apps/{{ app.applications[0] || 'unknown' }}.png"
+                                                           data-text="{{ app.appName }}"
+                                                           data-values="[app]">
+                                        </oui-select-picker>
+                                    </div>
+                                </div>
+                            </uib-tab>
+                            <uib-tab index="3" heading="{{ 'cpcivm_add_step1_tab_customs' | translate }}"
+                                     data-ng-if="$ctrl.displayedCustoms.length > 0">
+                                <div class="mt-4">
+                                    Customs images
+                                </div>
+                            </uib-tab>
+                            <uib-tab index="4" heading="{{ 'cpcivm_add_step1_tab_shapshots' | translate }}"
+                                     data-ng-if="$ctrl.displayedSnapshots.length > 0">
+                                <div class="cloud-vm-add-list d-md-flex flex-wrap mt-4">
+                                    <div class="cloud-vm-add-list-item cloud-vm-add-grid-cell"
+                                         data-ng-repeat="snapshot in $ctrl.displayedSnapshots track by snapshot.id">
+                                        <oui-select-picker data-id="snapshot_{{snapshot.id}}"
+                                                           data-match="name"
+                                                           data-model="$ctrl.model.imageType"
+                                                           data-name="snapshot"
+                                                           data-picture="fa fa-2x fa-{{snapshot.type}}"
+                                                           data-text="{{ snapshot.name }}"
+                                                           data-values="[snapshot]">
+                                        </oui-select-picker>
+                                    </div>
+                                </div>
+                            </uib-tab>
+                        </uib-tabset>
+                    </div>
+
+                    <div data-ng-if="$ctrl.model.imageType">
+                        <p class="mt-4"
+                           data-ng-if="!$ctrl.CloudImageService.isSnapshot($ctrl.model.imageType)"
+                           data-translate="cpcivm_add_step1_sshKey_licence"></p>
+                        <div class="cloud-vm-add-list d-md-flex flex-wrap mt-4">
+                            <div class="cloud-vm-add-list-item cloud-vm-add-grid-cell">
+                                <oui-select-picker data-ng-if="!$ctrl.CloudImageService.isSnapshot($ctrl.model.imageType)"
+                                                   data-match="name"
+                                                   data-model="$ctrl.model.imageType"
+                                                   data-name="imageType"
+                                                   data-picture="{{:: 'assets/images/cloud/' + ($ctrl.model.imageType.apps ? 'apps/' + ($ctrl.model.imageType.applications[0] || 'unknown') + '.png' : 'os/' + $ctrl.model.imageType.distribution + '_50.png') }}"
+                                                   data-text="{{:: $ctrl.model.imageType.apps ? $ctrl.model.imageType.appName : ('cpcivm_add_distribution_' + $ctrl.model.imageType.distribution | translate) }}"
+                                                   data-values="[$ctrl.model.imageType]">
+                                </oui-select-picker>
+                                <oui-select-picker data-ng-if="$ctrl.CloudImageService.isSnapshot($ctrl.model.imageType)"
+                                                   data-match="name"
+                                                   data-model="$ctrl.model.imageType"
+                                                   data-name="snapshot"
+                                                   data-picture="fa fa-2x fa-{{$ctrl.model.imageType.type}}"
+                                                   data-text="{{ $ctrl.model.imageType.name }}"
+                                                   data-values="[$ctrl.model.imageType]">
+                                </oui-select-picker>
+                            </div>
+                            <div class="cloud-vm-add-list-item cloud-vm-add-grid-cell">
+                                <oui-button data-variant="secondary"
+                                            data-text="{{ 'common_modify' | translate }}"
+                                            data-on-click="$ctrl.resetStep1()">
+                                </oui-button>
+                            </div>
+                        </div>
+
+                        <div class="mt-4"
+                             data-ng-if="$ctrl.model.imageType.type === 'linux'">
+                            <label data-ng-attr-for="{{ !$ctrl.addingSshKey ? 'sshKey' : undefined }}"
+                                   data-ng-class="{'oui-label': !$ctrl.addingSshKey}"
+                                   data-translate="cpcivm_add_step1_sshKey_label">
+                            </label>
+                            <div class="oui-field"
+                                 data-ng-if="!$ctrl.addingSshKey">
+                                <div class="oui-field__content">
+                                    <div class="oui-field-control cloud-vm-add-grid-cell">
+                                        <label class="oui-select">
+                                            <select class="oui-select__input" id="sshKey" name="sshKey"
+                                                    data-ng-change="$ctrl.checkSshKeyByRegion($ctrl.model.sshKey.regions)"
+                                                    data-ng-disabled="$ctrl.model.region"
+                                                    data-ng-model="$ctrl.model.sshKey"
+                                                    data-ng-options="sshKey.name for sshKey in $ctrl.displayedSshKeys track by sshKey.id">
+                                                <option value="" disabled
+                                                        data-translate="common_select"></option>
+                                            </select>
+                                            <span class="oui-icon oui-icon-chevron-down" aria-hidden="true"></span>
+                                        </label>
+                                    </div>
+                                    <div class="oui-field-helper oui-field-helper_top mb-0 ml-0">
+                                        <oui-button data-variant="secondary"
+                                                    data-text="{{ 'cpcivm_add_step1_sshKey_add' | translate }}"
+                                                    data-on-click="$ctrl.addingSshKey = true">
+                                        </oui-button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div data-ng-if="$ctrl.addingSshKey">
+                                <oui-field data-label="{{ 'cpcivm_add_step1_sshKey_name_label' | translate }}">
+                                    <input type="text" class="oui-input" id="sshKey-name" name="newSshKey_name" required
+                                           data-ng-disabled="$ctrl.loaders.addingSsh"
+                                           data-ng-model="$ctrl.newSshKey.name">
+                                </oui-field>
+                                <div class="oui-field">
+                                    <label class="oui-field__label oui-label" for="sshKey-value"
+                                           data-translate="cpcivm_add_step1_sshKey_publicKey_label"></label>
+                                    <div class="oui-field__control">
+                                        <oui-textarea data-id="sshKey-value"
+                                                      data-name="newSshKey_value"
+                                                      data-rows="5"
+                                                      data-ng-disabled="$ctrl.loaders.addingSsh"
+                                                      data-ng-model="$ctrl.newSshKey.publicKey"
+                                                      data-required="true">
+                                        </oui-textarea>
+                                    </div>
+                                    <div class="oui-field__helper"
+                                         data-translate="cpcivm_add_step1_sshKey_message"
+                                         data-translate-values="{ url: $ctrl.urls.guidesSshkey }">
+                                    </div>
+                                </div>
+                                <oui-button data-variant="secondary"
+                                            data-type="submit"
+                                            data-text="{{ 'cpcivm_add_step1_sshKey_adding' | translate }}"
+                                            data-on-click="$ctrl.addSshKey()"
+                                            data-disabled="$ctrl.loaders.addingSsh">
+                                </oui-button>
+                                <oui-button data-variant="link"
+                                            data-text="{{ 'common_cancel' | translate }}"
+                                            data-on-click="$ctrl.resetAddingSshKey()">
+                                </oui-button>
+                                <oui-spinner data-ng-if="$ctrl.loaders.addingSsh"></oui-spinner>
+                            </div>
+                        </div>
+                    </div>
+                </cui-wizard-step>
+
+                <!-- Step 2 : Regions -->
+                <cui-wizard-step data-step-title="{{ 'cpcivm_add_step2_title' | translate }}"
+                                 data-step-on-init="$ctrl.initRegionsAndDataCenters()"
+                                 data-step-loaded="!$ctrl.loaders.step2"
+                                 data-step-completed="$ctrl.isStep2Valid()">
+                    <uib-tabset data-ng-if="!$ctrl.model.region">
+                        <uib-tab index="0" heading="{{ 'cpcivm_add_step2_tab_all' | translate }}">
+                            <div class="cloud-vm-add-list d-md-flex flex-wrap mt-4">
+                                <div class="cloud-vm-add-list-item cloud-vm-add-grid-cell"
+                                     data-ng-repeat="region in $ctrl.displayedRegions track by region.macroRegion.code">
+                                    <oui-select-picker data-id="allRegions_{{region.macroRegion.code}}"
+                                                       data-disabled="region.dataCenters.length === 1 ? region.dataCenters[0].disabled : $ctrl.model.region.disabled"
+                                                       data-match="microRegion.text"
+                                                       data-model="$ctrl.model.region"
+                                                       data-name="allRegions"
+                                                       data-on-change="$ctrl.setImageId()"
+                                                       data-picture="flag-icon flag-icon-{{ region.macroRegion.code | lowercase }}"
+                                                       data-placeholder="{{ 'cpcivm_add_step1_distribution_choose' | translate }}"
+                                                       data-text="{{region.macroRegion.text}}"
+                                                       data-values="region.dataCenters">
+                                        <span class="oui-select-picker__section text-center"
+                                              data-ng-if="region.dataCenters.length === 1 ? region.dataCenters[0].disabled : $ctrl.model.region.disabled">
+                                            <oui-button data-variant="link"
+                                                        data-text="{{'cpcivm_add_step2_disabled_' + (region.dataCenters.length === 1 ? region.dataCenters[0].disabled : $ctrl.model.region.disabled) | translate }}"
+                                                        data-on-click="$ctrl.updateSshKeyRegion()"
+                                                        data-ng-if="$ctrl.model.sshKey && ($ctrl.model.region.disabled === 'SSH_KEY' || (region.dataCenters.length === 1 && region.dataCenters[0].disabled === 'SSH_KEY'))">
+                                            </oui-button>
+                                            <span data-translate="'cpcivm_add_step2_disabled_' + region.disabled"
+                                                  data-ng-if="(region.dataCenters.length === 1 && region.dataCenters[0].disabled !== 'SSH_KEY') || $ctrl.model.region.disabled === 'SSH_KEY'">
+                                            </span>
+                                        </span>
+                                    </oui-select-picker>
+                                </div>
+                            </div>
+                        </uib-tab>
+                        <uib-tab data-ng-repeat="(continent, regions) in $ctrl.groupedRegions track by $index"
+                                 index="($index + 1)" heading="{{continent}}">
+                            <div class="cloud-vm-add-list d-md-flex flex-wrap mt-4">
+                                <div class="cloud-vm-add-list-item cloud-vm-add-grid-cell"
+                                     data-ng-repeat="region in regions track by region.macroRegion.code">
+                                    <oui-select-picker data-id="region_{{region.macroRegion.code}}"
+                                                       data-disabled="region.dataCenters.length === 1 ? region.dataCenters[0].disabled : $ctrl.model.region.disabled"
+                                                       data-match="microRegion.text"
+                                                       data-model="$ctrl.model.region"
+                                                       data-name="region"
+                                                       data-on-change="$ctrl.setImageId()"
+                                                       data-picture="flag-icon flag-icon-{{ region.macroRegion.code | lowercase }} flag"
+                                                       data-placeholder="{{ 'cpcivm_add_step1_distribution_choose' | translate }}"
+                                                       data-text="{{region.macroRegion.text}}"
+                                                       data-values="region.dataCenters">
+                                        <span class="oui-select-picker__section text-center"
+                                              data-ng-if="region.dataCenters.length === 1 ? region.dataCenters[0].disabled : $ctrl.model.region.disabled">
+                                            <oui-button data-variant="link"
+                                                        data-text="{{'cpcivm_add_step2_disabled_' + (region.dataCenters.length === 1 ? region.dataCenters[0].disabled : $ctrl.model.region.disabled) | translate }}"
+                                                        data-on-click="$ctrl.updateSshKeyRegion()"
+                                                        data-ng-if="$ctrl.model.sshKey && ($ctrl.model.region.disabled === 'SSH_KEY' || (region.dataCenters.length === 1 && region.dataCenters[0].disabled === 'SSH_KEY'))">
+                                            </oui-button>
+                                            <span data-translate="'cpcivm_add_step2_disabled_' + region.disabled"
+                                                  data-ng-if="(region.dataCenters.length === 1 && region.dataCenters[0].disabled !== 'SSH_KEY') || $ctrl.model.region.disabled === 'SSH_KEY'">
+                                            </span>
+                                        </span>
+                                    </oui-select-picker>
+                                </div>
+                            </div>
+                        </uib-tab>
+                    </uib-tabset>
+
+                    <div class="cloud-vm-add-list d-md-flex flex-wrap mt-4"
+                         data-ng-if="$ctrl.model.region">
+                        <div class="cloud-vm-add-list-item cloud-vm-add-grid-cell">
+                            <oui-select-picker data-match="microRegion.text"
+                                               data-model="$ctrl.model.region"
+                                               data-name="region"
+                                               data-picture="flag-icon flag-icon-{{ $ctrl.model.region.macroRegion.code | lowercase }}"
+                                               data-text="{{$ctrl.model.region.macroRegion.text}}"
+                                               data-values="[$ctrl.model.region]">
+                            </oui-select-picker>
+                        </div>
+                        <div class="cloud-vm-add-list-item cloud-vm-add-grid-cell">
+                            <oui-button data-variant="secondary"
+                                        data-text="{{ 'common_modify' | translate }}"
+                                        data-on-click="$ctrl.resetStep2()">
+                            </oui-button>
+                        </div>
+                    </div>
+                </cui-wizard-step>
+
+                <!-- Step 3 : Instances -->
+                <cui-wizard-step data-step-title="{{ 'cpcivm_add_step3_title' | translate }}"
+                                 data-step-on-init="$ctrl.initInstanceAndConfiguration()"
+                                 data-step-loaded="!$ctrl.loaders.step3"
+                                 data-step-completed="$ctrl.isStep3Valid()">
+                    <uib-tabset data-ng-if="!$ctrl.model.flavor">
+                        <uib-tab data-ng-repeat="group in $ctrl.groupedFlavors track by group.category"
+                                 index="$index" heading="{{ 'cpcivm_add_step3_category_' + group.category | translate }}">
+                            <p class="my-4"
+                               data-ng-bind=":: 'cpcivm_add_step3_category_definition_' + group.category | translate"></p>
+
+                            <oui-radio-group data-model="$ctrl.model.flavor"
+                                             data-name="flavor"
+                                             data-on-change="$ctrl.setInstanceName()">
+                                <div class="cloud-vm-add-list d-md-flex flex-wrap">
+                                    <div class="cloud-vm-add-list-item cloud-vm-add-grid-cell"
+                                         data-ng-repeat="flavor in group.flavors track by flavor.id">
+                                        <oui-radio data-text="{{flavor.name}}"
+                                                   data-id="flavor_{{flavor.id}}"
+                                                   data-disabled="flavor.disabled"
+                                                   data-thumbnail="true"
+                                                   data-value="flavor">
+                                            <span class="oui-radio__section">
+                                                <span class="d-flex flex-wrap">
+                                                    <span data-translate="cpcivm_add_step3_label_ram"></span>
+                                                    <span class="ml-auto"
+                                                          data-ng-bind="flavor.ram | bytes:0:false:'MB'"></span>
+                                                </span>
+                                                <span class="d-flex flex-wrap">
+                                                    <span data-translate="cpcivm_add_step3_label_core"></span>
+                                                    <span class="ml-auto"
+                                                          data-translate="cpcivm_add_step3_value_core"
+                                                          data-translate-values="{ vcores: flavor.vcpus, frequency: flavor.frequency }"></span>
+                                                </span>
+                                                <span class="d-flex flex-wrap">
+                                                    <span data-translate="cpcivm_add_step3_label_disk"></span>
+                                                    <span class="ml-auto"
+                                                          data-ng-bind="(flavor.disk | bytes:2:false:'GB') + ' ' + (flavor.diskType | uppercase)"></span>
+                                                </span>
+                                                <span class="d-flex flex-wrap">
+                                                    <span data-translate="cpcivm_add_step3_label_bandwidth"></span>
+                                                    <span class="ml-auto"
+                                                          data-ng-bind="flavor.outboundBandwidth ? flavor.outboundBandwidth + ' Mbps' : '?'"></span>
+                                                </span>
+                                            </span>
+                                            <span class="oui-radio__section text-right"
+                                                  data-ng-if="flavor.price">
+                                                <strong class="d-block"
+                                                        data-translate="cpci_vm_flavor_month"
+                                                        data-translate-values="{ price: (flavor.price.monthlyPrice.value | currency: $ctrl.currentCurrency: 2) || '?' }"></strong>
+                                                <span class="d-block"
+                                                      data-translate="cpci_vm_flavor_price"
+                                                      data-translate-values="{ price: (flavor.price.price.value | currency: $ctrl.currentCurrency: 3) || '?' }"></span>
+                                            </span>
+                                            <span class="oui-radio__section text-center"
+                                                  data-ng-if="flavor.disabled">
+                                                <oui-button data-variant="link"
+                                                            data-text="{{'cpcivm_add_step3_disabled_NOT_AVAILABLE' | translate}}"
+                                                            data-on-click="$ctrl.VirtualMachineAddService.openQuotaModal('NOT_AVAILABLE', { regions: flavor.regions.join(', ') })"
+                                                            data-ng-if="flavor.disabled === 'NOT_AVAILABLE'">
+                                                </oui-button>
+                                                <oui-button data-variant="link"
+                                                            data-text="{{'cpcivm_add_step3_disabled_QUOTA_RAM' | translate}}"
+                                                            data-on-click="$ctrl.VirtualMachineAddService.openQuotaModal('QUOTA_RAM', { quota: $ctrl.CloudFlavorService.getQuotaRam(flavor, $ctrl.quota) })"
+                                                            data-ng-if="flavor.disabled === 'QUOTA_RAM'">
+                                                </oui-button>
+                                                <oui-button data-variant="link"
+                                                            data-text="{{'cpcivm_add_step3_disabled_QUOTA_VCPUS' | translate}}"
+                                                            data-on-click="$ctrl.VirtualMachineAddService.openQuotaModal('QUOTA_VCPUS', { quota: $ctrl.CloudFlavorService.getQuotaCore(flavor, $ctrl.quota) })"
+                                                            data-ng-if="flavor.disabled === 'QUOTA_VCPUS'">
+                                                </oui-button>
+                                                <oui-button data-variant="link"
+                                                            data-text="{{'cpcivm_add_step3_disabled_QUOTA_MINDISK' | translate}}"
+                                                            data-on-click="$ctrl.VirtualMachineAddService.openQuotaModal('QUOTA_MINDISK', $ctrl.CloudFlavorService.getRequirements(flavor, $ctrl.model.imageId))"
+                                                            data-ng-if="flavor.disabled === 'QUOTA_MINDISK'">
+                                                </oui-button>
+                                                <oui-button data-variant="link"
+                                                            data-text="{{'cpcivm_add_step3_disabled_QUOTA_MINRAM' | translate}}"
+                                                            data-on-click="$ctrl.VirtualMachineAddService.openQuotaModal('QUOTA_MINRAM', $ctrl.CloudFlavorService.getRequirements(flavor, $ctrl.model.imageId))"
+                                                            data-ng-if="flavor.disabled === 'QUOTA_MINRAM'">
+                                                </oui-button>
+                                            </span>
+                                        </oui-radio>
+                                    </div>
+                                </div>
+                            </oui-radio-group>
+                        </uib-tab>
+                    </uib-tabset>
+
+                    <div data-ng-if="$ctrl.model.flavor">
+                        <div class="cloud-vm-add-list d-md-flex flex-wrap mt-4">
+                            <div class="cloud-vm-add-list-item cloud-vm-add-grid-cell">
+                                <oui-radio data-model="$ctrl.model.flavor"
+                                           data-name="flavor"
+                                           data-text="{{$ctrl.model.flavor.name}}"
+                                           data-thumbnail="true"
+                                           data-value="$ctrl.model.flavor">
+                                    <span class="oui-radio__section">
+                                        <span class="d-flex flex-wrap">
+                                            <span data-translate="cpcivm_add_step3_label_ram"></span>
+                                            <span class="ml-auto"
+                                                  data-ng-bind="$ctrl.model.flavor.ram | bytes:0:false:'MB'"></span>
+                                        </span>
+                                        <span class="d-flex flex-wrap">
+                                            <span data-translate="cpcivm_add_step3_label_core"></span>
+                                            <span class="ml-auto"
+                                                  data-translate="cpcivm_add_step3_value_core"
+                                                  data-translate-values="{ vcores: $ctrl.model.flavor.vcpus, frequency: $ctrl.model.flavor.frequency }"></span>
+                                        </span>
+                                        <span class="d-flex flex-wrap">
+                                            <span data-translate="cpcivm_add_step3_label_disk"></span>
+                                            <span class="ml-auto"
+                                                  data-ng-bind="($ctrl.model.flavor.disk | bytes:2:false:'GB') + ' ' + ($ctrl.model.flavor.diskType | uppercase)"></span>
+                                        </span>
+                                        <span class="d-flex flex-wrap">
+                                            <span data-translate="cpcivm_add_step3_label_bandwidth"></span>
+                                            <span class="ml-auto"
+                                                  data-ng-bind="$ctrl.model.flavor.outboundBandwidth ? $ctrl.model.flavor.outboundBandwidth + ' Mbps' : '?'"></span>
+                                        </span>
+                                    </span>
+                                    <span class="oui-radio__section text-right"
+                                          data-ng-if="$ctrl.model.flavor.price">
+                                        <strong class="d-block"
+                                                data-translate="cpci_vm_flavor_month"
+                                                data-translate-values="{ price: ($ctrl.model.flavor.price.monthlyPrice.value | currency: $ctrl.currentCurrency: 2) || '?' }"></strong>
+                                        <span class="d-block"
+                                              data-translate="cpci_vm_flavor_price"
+                                              data-translate-values="{ price: ($ctrl.model.flavor.price.price.value | currency: $ctrl.currentCurrency: 3) || '?' }"></span>
+                                    </span>
+                                </oui-radio>
+                            </div>
+                            <div class="cloud-vm-add-list-item cloud-vm-add-grid-cell">
+                                <oui-button data-variant="secondary"
+                                            data-text="{{ 'common_modify' | translate }}"
+                                            data-on-click="$ctrl.resetStep3()">
+                                </oui-button>
+                            </div>
+                        </div>
+
+                        <div class="oui-field mt-4">
+                            <label class="oui-field__label oui-label" for="model-number"
+                                   data-translate="cpcivm_add_step3_quantity_label"></label>
+                            <p data-translate="cpcivm_add_step3_quantity_info"></p>
+                            <div class="oui-field__control">
+                                <oui-numeric id="model-number"
+                                             data-name="number"
+                                             data-min="1"
+                                             data-max="$ctrl.model.flavor.maxInstance > 0 ? $ctrl.model.flavor.maxInstance : 1000"
+                                             data-model="$ctrl.model.number">
+                                </oui-numeric>
+                            </div>
+                            <div class="oui-field__helper"
+                                 data-ng-if="$ctrl.model.flavor.maxInstance > 0">
+                                <span data-translate="cpcivm_add_step3_quantity_help"
+                                      data-translate-values="{ max: $ctrl.model.flavor.maxInstance, type: $ctrl.model.flavor.name, region: $ctrl.model.region.microRegion.text }"></span>
+                                <a ui-sref="iaas.pci-project.billing.quota" target="_blank"
+                                   data-translate="cpcivm_add_step3_quota_link_text"></a>.
+                            </div>
+                        </div>
+
+                        <oui-field data-label="{{ 'cpcivm_add_step3_name_label' | translate }}"
+                                   data-help-text="{{ 'cpcivm_add_step3_name_help' | translate }}">
+                            <input class="oui-input" id="model-name" name="name" type="text" required
+                                   data-ng-change="$ctrl.isNameUpdated = true"
+                                   data-ng-model="$ctrl.model.name"
+                                   data-ng-pattern="/^[a-zA-Z0-9_\.\-]+$/">
+                        </oui-field>
+                        <p data-translate="cpcivm_add_step3_name_additional"></p>
+
+                        <div class="oui-box my-5">
+                            <div class="d-flex align-items-center">
+                                <div class="w-100">
+                                    <label class="oui-label" for="model-postScript"
+                                           data-translate="cpcivm_add_step3_postscript_label"></label>
+                                    <textarea class="oui-textarea mb-0" id="model-postScript"
+                                              data-ng-if="$ctrl.isPostScriptEnabled"
+                                              data-ng-model="$ctrl.model.userData">
+                                    </textarea>
+                                    <p data-translate="cpcivm_add_step3_postscript_info"
+                                       data-ng-if="!$ctrl.isPostScriptEnabled"></p>
+                                </div>
+                                <div class="pl-5"
+                                     data-ng-if="!$ctrl.isPostScriptEnabled">
+                                    <button type="button" class="oui-button oui-button_secondary mb-0"
+                                            data-translate="common_add"
+                                            data-ng-click="$ctrl.enablePostScript()">
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="oui-field"
+                             data-ng-if="$ctrl.state.hasVRack">
+                            <label class="oui-field__label oui-label" for="network"
+                                   data-translate="cpcivm_add_step3_network_label"></label>
+                            <p data-translate="cpcivm_add_step3_network_info"
+                               data-translate-values="{ url: $ctrl.urls.vLansApiGuide }"></p>
+                            <div class="oui-field__control">
+                                <label class="oui-select">
+                                    <select class="oui-select__input" id="network" name="network" required
+                                            data-ng-disabled="$ctrl.loaders.privateNetworks"
+                                            data-ng-model="$ctrl.model.networkId">
+                                        <option value="" disabled
+                                                data-translate="common_select"></option>
+                                        <option value="none"
+                                                data-translate="cpcivm_add_step3_network_none"></option>
+                                        <option data-ng-repeat="network in $ctrl.displayedPrivateNetworks track by network.id"
+                                                data-ng-bind="network.vlanId + ' - ' + network.name"
+                                                data-ng-value="network.id"></option>
+                                    </select>
+                                    <span class="oui-icon oui-icon-chevron-down" aria-hidden="true"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </cui-wizard-step>
+
+                <!-- Step 4 : Billing period -->
+                <cui-wizard-step data-step-title="{{ 'cpcivm_add_step4_title' | translate }}"
+                                 data-step-on-init="$ctrl.resetStep4()"
+                                 data-step-completed="$ctrl.isStep4Valid()">
+                    <div data-ng-if="!$ctrl.model.billingPeriod">
+                        <p data-translate="cpcivm_add_step4_message"></p>
+                        <oui-radio-group data-model="$ctrl.model.billingPeriod"
+                                         data-name="billingPeriod">
+                            <div class="cloud-vm-add-list d-md-flex flex-wrap">
+                                <div class="cloud-vm-add-list-item cloud-vm-add-grid-cell"
+                                     data-ng-repeat="period in $ctrl.enums.billingPeriods track by $index">
+                                    <oui-radio data-text="{{:: 'cpcivm_add_step4_billing_period_' + period | translate}}"
+                                               data-id="period_{{period}}"
+                                               data-thumbnail="true"
+                                               data-value="period">
+                                        <span class="oui-radio__section"
+                                              data-translate="cpci_vm_flavor_price"
+                                              data-translate-values="{ price: (($ctrl.model.number * $ctrl.model.flavor.price.price.value) | currency: $ctrl.currentCurrency: 3) || '?' }"
+                                              data-ng-if="period === 'hourly'"></span>
+                                        <span class="oui-radio__section"
+                                              data-translate="cpci_vm_flavor_month"
+                                              data-translate-values="{ price: (($ctrl.model.number * $ctrl.model.flavor.price.monthlyPrice.value) | currency: $ctrl.currentCurrency: 2) || '?' }"
+                                              data-ng-if="period === 'monthly'"></span>
+                                    </oui-radio>
+                                </div>
+                            </div>
+                        </oui-radio-group>
+                    </div>
+
+                    <div class="cloud-vm-add-list d-md-flex flex-wrap mt-4"
+                         data-ng-if="$ctrl.model.billingPeriod">
+                        <div class="cloud-vm-add-list-item cloud-vm-add-grid-cell">
+                            <oui-radio data-model="$ctrl.model.billingPeriod"
+                                       data-name="period"
+                                       data-text="{{:: 'cpcivm_add_step4_billing_period_' + $ctrl.model.billingPeriod | translate}}"
+                                       data-thumbnail="true"
+                                       data-value="$ctrl.model.billingPeriod">
+                                <span class="oui-radio__section"
+                                      data-translate="cpci_vm_flavor_price"
+                                      data-translate-values="{ price: (($ctrl.model.number * $ctrl.model.flavor.price.price.value) | currency: $ctrl.currentCurrency: 3) || '?' }"
+                                      data-ng-if="$ctrl.model.billingPeriod === 'hourly'"></span>
+                                <span class="oui-radio__section"
+                                      data-translate="cpci_vm_flavor_month"
+                                      data-translate-values="{ price: (($ctrl.model.number * $ctrl.model.flavor.price.monthlyPrice.value) | currency: $ctrl.currentCurrency: 2) || '?' }"
+                                      data-ng-if="$ctrl.model.billingPeriod === 'monthly'"></span>
+                            </oui-radio>
+                        </div>
+                        <div class="cloud-vm-add-list-item cloud-vm-add-grid-cell">
+                            <oui-button data-variant="secondary"
+                                        data-text="{{ 'common_modify' | translate }}"
+                                        data-on-click="$ctrl.resetStep4()">
+                            </oui-button>
+                        </div>
+                    </div>
+                </cui-wizard-step>
+            </cui-wizard-form>
+        </div>
+
+        <div class="col-lg-3 visible-lg">
+            <div class="oui-box oui-box_light cloud-vm-add-summary">
+                <h2 class="oui-header_2 text-center"
+                    data-translate="cpcivm_add_summary_title"></h2>
+                <div class="oui-list_steps oui-list_separated">
+                    <ul class="oui-list__items">
+                        <li class="oui-list__item oui-list__item_optional oui-list__item_checked"
+                            data-ng-class="{ 'oui-list__item_complete': $ctrl.isStep1Valid() }">
+                            <span class="oui-list__header"
+                                  data-translate="cpcivm_add_summary_os"></span>
+                            <span class="oui-list__description"
+                                  data-translate="cpcivm_add_summary_undefined"
+                                  data-ng-if="!$ctrl.model.imageType"></span>
+                            <span class="oui-list__description"
+                                  data-ng-bind="$ctrl.model.imageType.name"
+                                  data-ng-if="$ctrl.model.imageType"></span>
+                        </li>
+                        <li class="oui-list__item oui-list__item_optional oui-list__item_checked"
+                            data-ng-class="{ 'oui-list__item_complete': $ctrl.isStep2Valid() }">
+                            <span class="oui-list__header"
+                                  data-translate="cpcivm_add_summary_region"></span>
+                            <span class="oui-list__description"
+                                  data-translate="cpcivm_add_summary_undefined"
+                                  data-ng-if="!$ctrl.model.region"></span>
+                            <span class="oui-list__description"
+                                  data-ng-bind="$ctrl.model.region.microRegion.text"
+                                  data-ng-if="$ctrl.model.region"></span>
+                        </li>
+                        <li class="oui-list__item oui-list__item_optional oui-list__item_checked"
+                            data-ng-class="{ 'oui-list__item_complete': $ctrl.model.flavor && $ctrl.model.number > 0 }">
+                            <span class="oui-list__header"
+                                  data-translate="cpcivm_add_summary_instance"></span>
+                            <span class="oui-list__description"
+                                  data-translate="cpcivm_add_summary_undefined"
+                                  data-ng-if="!$ctrl.model.flavor"></span>
+                            <span class="oui-list__description d-flex"
+                                  data-ng-if="$ctrl.model.flavor">
+                                <span data-ng-bind="$ctrl.model.flavor.name"></span>
+                                <strong class="ml-auto"
+                                        data-ng-bind="'x' + $ctrl.model.number"></strong>
+                            </span>
+                        </li>
+                        <li class="oui-list__item oui-list__item_optional oui-list__item_checked"
+                            data-ng-class="{ 'oui-list__item_complete': $ctrl.model.flavor && $ctrl.model.name }">
+                            <span class="oui-list__header"
+                                  data-translate="cpcivm_add_summary_name"></span>
+                            <span class="oui-list__description"
+                                  data-translate="cpcivm_add_summary_undefined"
+                                  data-ng-if="!$ctrl.model.name"></span>
+                            <span class="oui-list__description"
+                                  data-ng-bind="$ctrl.model.name"
+                                  data-ng-if="$ctrl.model.name"></span>
+                        </li>
+                        <li class="oui-list__item">
+                            <h3 data-translate="cpcivm_add_summary_price_monthly"></h3>
+                            <span class="oui-list__description"
+                                  data-translate="cpcivm_add_summary_undefined"
+                                  data-ng-if="!$ctrl.model.flavor.price"></span>
+                            <span class="oui-list__description"
+                                  data-ng-bind="($ctrl.model.number * $ctrl.model.flavor.price.monthlyPrice.value ) | currency: $ctrl.currentCurrency: 2"
+                                  data-ng-if="$ctrl.model.flavor.price"></span>
+                            <h3 data-translate="cpcivm_add_summary_price_hourly"></h3>
+                            <span class="oui-list__description"
+                                  data-translate="cpcivm_add_summary_undefined"
+                                  data-ng-if="!$ctrl.model.flavor.price"></span>
+                            <span class="oui-list__description"
+                                  data-ng-bind="($ctrl.model.number * $ctrl.model.flavor.price.price.value) | currency: $ctrl.currentCurrency: 3"
+                                  data-ng-if="$ctrl.model.flavor.price"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</section>

@@ -1,12 +1,13 @@
 class CloudProjectComputeInfrastructureListCtrl {
     constructor ($scope, $q, $stateParams, $translate,
-                 CloudMessage, CloudProjectOrchestrator, CloudProjectComputeInfrastructureService,
-                 OvhApiCloudProjectVolume, OvhCloudPriceHelper, RegionService, OvhApiCloudProjectFlavor) {
+                 CloudMessage, CloudNavigation, CloudProjectOrchestrator, CloudProjectComputeInfrastructureService,
+                 OvhApiCloudProjectVolume, RegionService, OvhApiCloudProjectFlavor) {
         this.$scope = $scope;
         this.$q = $q;
         this.$stateParams = $stateParams;
         this.$translate = $translate;
         this.CloudMessage = CloudMessage;
+        this.CloudNavigation = CloudNavigation;
         this.CloudProjectOrchestrator = CloudProjectOrchestrator;
         this.InfrastructureService = CloudProjectComputeInfrastructureService;
         this.OvhApiCloudProjectVolume = OvhApiCloudProjectVolume;
@@ -17,6 +18,13 @@ class CloudProjectComputeInfrastructureListCtrl {
 
     $onInit () {
         this.serviceName = this.$stateParams.projectId;
+
+        this.CloudNavigation.init({
+            state: "iaas.pci-project.compute.infrastructure.list",
+            stateParams: {
+                serviceName: this.serviceName
+            }
+        });
 
         this.loaders = {
             infra: false

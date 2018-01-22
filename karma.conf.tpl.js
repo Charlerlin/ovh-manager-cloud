@@ -14,7 +14,6 @@ module.exports = function (config) {
             // bower:js
             // endbower
             "client/app/app.js",
-            "client/{app,components}/**/*.module.js",
             "client/{app,components}/**/*.js",
             "client/{app,components}/**/*.html",
 

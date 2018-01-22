@@ -42,6 +42,38 @@ angular.module("managerApp")
             order: 3
         }
     ])
+    .constant("CLOUD_FLAVORTYPE_CATEGORIES", [
+        {
+            id: "balanced",
+            types: ["ovh.ceph.eg", "ovh.ssd.eg"],
+            migrationNotAllowed: ["vps"],
+            order: 1
+        },
+        {
+            id: "cpu",
+            types: ["ovh.cpu", "ovh.ssd.cpu", "ovh.ceph.hg"],
+            migrationNotAllowed: ["vps"],
+            order: 2
+        },
+        {
+            id: "ram",
+            types: ["ovh.ram", "ovh.ssd.ram"],
+            migrationNotAllowed: ["vps"],
+            order: 3
+        },
+        {
+            id: "accelerated",
+            types: ["ovh.ssd.gpu", "ovh.ssd.gpu2", "ovh.ssd.gpu3", "ovh.ssd.fpga2"],
+            migrationNotAllowed: ["vps"],
+            order: 4
+        },
+        {
+            id: "vps",
+            types: ["ovh.vps-ssd"],
+            migrationNotAllowed: [],
+            order: 5
+        }
+    ])
     .constant("CLOUD_FLAVOR_SPECIFIC_IMAGE", [
         "g1",
         "g2",
