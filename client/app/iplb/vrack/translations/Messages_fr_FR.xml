@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<translations>
+   <translation id="iplb_vrack_title">Réseaux privés</translation>
+   <translation id="iplb_vrack_intro_text">Répartissez facilement la charge entre les différents services de votre VLAN à l'intérieur du vRack.</translation>
+
+   <translation id="iplb_vrack_box_inactive_title">Réseaux privés</translation>
+   <translation id="iplb_vrack_box_inactive_description">Inactif</translation>
+
+   <translation id="iplb_vrack_private_network_add">Ajouter un réseau privé</translation>
+
+   <translation id="iplb_vrack_list_col_private_network">Réseau privé</translation>
+   <translation id="iplb_vrack_list_col_private_vlan_id">VLAN ID</translation>
+   <translation id="iplb_vrack_list_col_private_subnet">Subnet</translation>
+   <translation id="iplb_vrack_list_col_private_nat_ip">NatIP</translation>
+   <translation id="iplb_vrack_list_col_private_farms">Ferme de serveurs</translation>
+</translations>
