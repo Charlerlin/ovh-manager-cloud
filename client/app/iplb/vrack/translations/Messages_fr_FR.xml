@@ -13,4 +13,6 @@
    <translation id="iplb_vrack_list_col_private_subnet">Subnet</translation>
    <translation id="iplb_vrack_list_col_private_nat_ip">NatIP</translation>
    <translation id="iplb_vrack_list_col_private_farms">Ferme de serveurs</translation>
+
+   <translation id="iplb_vrack_add_title">Ajouter un réseau privé</translation>
 </translations>
