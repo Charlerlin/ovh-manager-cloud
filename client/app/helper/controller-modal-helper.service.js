@@ -71,15 +71,23 @@ class ControllerModalHelper {
     }
 
     showDeleteModal (config = {}) {
-        config.submitButtonText = this.$translate.instant("common_delete");
+        config.submitButtonText = config.submitButtonText || this.$translate.instant("common_delete");
         return this.showConfirmationModal(config);
     }
 
-    showVrackAssociateModal (config = {
+    showVrackActivateModal (config = {
         title: "Activer les réseaux privés (via vRack)",
         message: "Should be done by Ravindra team.  Awaiting https://github.com/ovh-ux/ovh-manager-cloud/pull/402"
     }) {
         return this.showWarningModal(config);
+    }
+
+    showVrackDeactivateModal (vrack, config = {
+        titleText: "Désactiver le vRack",
+        text: `Êtes-vous sûr de vouloir désactiver le vRack « ${vrack.displayName} »`,
+        submitButtonText: this.$translate.instant("common_deactivate")
+    }) {
+        return this.showDeleteModal(config);
     }
 }
 
