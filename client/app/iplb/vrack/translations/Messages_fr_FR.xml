@@ -17,9 +17,21 @@
    <translation id="iplb_vrack_list_col_private_nat_ip">NatIP</translation>
    <translation id="iplb_vrack_list_col_private_farms">Ferme de serveurs</translation>
 
-   <translation id="iplb_vrack_add_title">Ajouter un réseau privé</translation>
-   <translation id="iplb_vrack_add_rules_loading_error">Une erreur est survenues lors du chargement des informations de réseau privé : {{message}}</translation>
-   <translation id="iplb_vrack_add_private_networks_loading_error">Une erreur est survenues lors du chargement des réseaux privés : {{message}}</translation>
-   <translation id="iplb_vrack_add_associate_vrack_error">Une erreur est survenues lors de l'association du vrack : {{message}}</translation>
-   <translation id="iplb_vrack_add_deassociate_vrack_error">Une erreur est survenues lors de la désactivation du vrack : {{message}}</translation>
+   <translation id="iplb_vrack_rules_loading_error">Une erreur est survenue lors du chargement des informations de réseau privé : {{message}}</translation>
+   <translation id="iplb_vrack_private_network_loading_error">Une erreur est survenue lors du chargement du réseau privé : {{message}}</translation>
+   <translation id="iplb_vrack_private_networks_loading_error">Une erreur est survenue lors du chargement des réseaux privés : {{message}}</translation>
+   <translation id="iplb_vrack_associate_vrack_error">Une erreur est survenue lors de l'association du vrack : {{message}}</translation>
+   <translation id="iplb_vrack_deassociate_vrack_error">Une erreur est survenue lors de la désactivation du vrack : {{message}}</translation>
+
+   <translation id="iplb_vrack_private_network_add_title">Ajouter un réseau privé</translation>
+   <translation id="iplb_vrack_private_network_edit_title">Modifier un réseau privé</translation>
+   <translation id="iplb_vrack_private_network_add_success">Le réseau privé a été ajouté avec succès.</translation>
+   <translation id="iplb_vrack_private_network_add_error">Une erreur est survenue lors de l'ajout du réseau privé: {{ message }}</translation>
+   <translation id="iplb_vrack_private_network_edit_success">Le réseau privé a été modifié avec succès.</translation>
+   <translation id="iplb_vrack_private_network_edit_error">Une erreur est survenue lors de la modification du réseau privé: {{ message }}</translation>
+
+   <translation id="iplb_vrack_private_network_delete_title">Supprimer le réseau privé</translation>
+   <translation id="iplb_vrack_private_network_delete_text">Êtes-vous sûr de vouloir supprimer le réseau privé « My Network A » ?</translation>
+   <translation id="iplb_vrack_private_network_delete_success">Le réseau privé a été supprimé avec succès.</translation>
+   <translation id="iplb_vrack_private_network_delete_error">Une erreur est survenue lors de la suppression du réseau privé: {{message}}</translation>
 </translations>
