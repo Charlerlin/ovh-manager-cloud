@@ -2,6 +2,9 @@
 <translations>
    <translation id="iplb_vrack_title">Réseaux privés</translation>
    <translation id="iplb_vrack_intro_text">Répartissez facilement la charge entre les différents services de votre VLAN à l'intérieur du vRack.</translation>
+   <translation id="iplb_vrack_intro_text2_single">Vous pouvez créer encore {{remainingNetworks}} réseau privé.</translation>
+   <translation id="iplb_vrack_intro_text2_plural">Vous pouvez créer encore {{remainingNetworks}} réseaux privés.</translation>
+   <translation id="iplb_vrack_intro_not_eligible">La configuration de votre load balancer ne vous permet pas d'associer un vRack pour le moment.</translation>
 
    <translation id="iplb_vrack_box_title">Réseaux privés</translation>
    <translation id="iplb_vrack_box_status_active">Actif</translation>
@@ -37,6 +40,8 @@
    <translation id="iplb_vrack_private_network_add_edit_field_subnet_helper">Ex. : 10.0.0.0/8</translation>
    <translation id="iplb_vrack_private_network_add_edit_field_nat_ip_label">NatIP</translation>
    <translation id="iplb_vrack_private_network_add_edit_field_nat_ip_helper">Ex. : 127.0.0.1/8</translation>
+   <translation id="iplb_vrack_private_network_add_edit_field_farm_label">Fermes de serveurs liées</translation>
+   <translation id="iplb_vrack_private_network_add_edit_field_farm_description">Nom</translation>
 
    <translation id="iplb_vrack_private_network_delete_title">Supprimer le réseau privé</translation>
    <translation id="iplb_vrack_private_network_delete_text">Êtes-vous sûr de vouloir supprimer le réseau privé « My Network A » ?</translation>
